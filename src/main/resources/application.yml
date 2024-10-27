@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: account-management-service
+  h2:
+    console.enabled: true
+  datasource:
+    url: jdbc:h2:mem:account-management
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+
+address:
+  lookup:
+    baseurl: https://api.zippopotam.us/
