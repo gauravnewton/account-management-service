@@ -31,8 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
@@ -101,224 +100,98 @@ class AccountServiceImplTest {
 
     @Test
     void testGetAccountByEmail() {
-        // Setup
-        final Account expectedResult = new Account();
-        expectedResult.setAccountId("accountId");
-        expectedResult.setName("name");
-        expectedResult.setEmail("email");
-        expectedResult.setAge(0);
-        expectedResult.setStatus(AccountStatus.IN_ACTIVE);
-        expectedResult.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
         expectedResult.setAddresses(List.of(address));
-        expectedResult.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        expectedResult.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
 
-        final Account account = new Account();
-        account.setAccountId("accountId");
-        account.setName("name");
-        account.setEmail("email");
-        account.setAge(0);
-        account.setStatus(AccountStatus.IN_ACTIVE);
-        account.setSecurityPIN("securityPIN");
+        final Account account = mockAccount();
 
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Address address1 = mockAddress();
+        address1.setCreatedAt(CREATED_DATE);
+        address1.setUpdatedAt(UPDATED_DATE);
 
         account.setAddresses(List.of(address1));
-        account.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        account.setCreatedAt(CREATED_DATE);
+        account.setUpdatedAt(UPDATED_DATE);
 
-        when(mockAccountRepository.findByEmail("email")).thenReturn(account);
+        when(mockAccountRepository.findByEmail(EMAIL)).thenReturn(account);
 
-        final Account result = accountServiceImplUnderTest.getAccountByEmail("email");
+        final Account result = accountServiceImplUnderTest.getAccountByEmail(EMAIL);
 
         assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
     void testGetAccountByAccountIdAndSecurityPIN() {
-        // Setup
-        final Account expectedResult = new Account();
-        expectedResult.setAccountId("accountId");
-        expectedResult.setName("name");
-        expectedResult.setEmail("email");
-        expectedResult.setAge(0);
-        expectedResult.setStatus(AccountStatus.IN_ACTIVE);
-        expectedResult.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
         expectedResult.setAddresses(List.of(address));
-        expectedResult.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        expectedResult.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
 
-        // Configure AccountRepository.findByAccountIdAndSecurityPIN(...).
-        final Account account = new Account();
-        account.setAccountId("accountId");
-        account.setName("name");
-        account.setEmail("email");
-        account.setAge(0);
-        account.setStatus(AccountStatus.IN_ACTIVE);
-        account.setSecurityPIN("securityPIN");
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account account = mockAccount();
+        final Address address1 = mockAddress();
+        address1.setCreatedAt(CREATED_DATE);
+        address1.setUpdatedAt(UPDATED_DATE);
         account.setAddresses(List.of(address1));
-        account.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        when(mockAccountRepository.findByAccountIdAndSecurityPIN("accountId", "securityPIN")).thenReturn(account);
+        account.setCreatedAt(CREATED_DATE);
+        account.setUpdatedAt(UPDATED_DATE);
+        when(mockAccountRepository.findByAccountIdAndSecurityPIN(ACCOUNT_ID, SECURITY_PIN)).thenReturn(account);
 
-        // Run the test
-        final Account result = accountServiceImplUnderTest.getAccountByAccountIdAndSecurityPIN("accountId",
-                "securityPIN");
+        final Account result = accountServiceImplUnderTest.getAccountByAccountIdAndSecurityPIN(ACCOUNT_ID, SECURITY_PIN);
 
-        // Verify the results
         assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
     void testDeleteAccount() {
-        // Setup
-        final Account existingAccount = new Account();
-        existingAccount.setAccountId("accountId");
-        existingAccount.setName("name");
-        existingAccount.setEmail("email");
-        existingAccount.setAge(0);
-        existingAccount.setStatus(AccountStatus.IN_ACTIVE);
-        existingAccount.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account existingAccount = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
         existingAccount.setAddresses(List.of(address));
-        existingAccount.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        existingAccount.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        existingAccount.setCreatedAt(CREATED_DATE);
+        existingAccount.setUpdatedAt(UPDATED_DATE);
 
-        // Run the test
         accountServiceImplUnderTest.deleteAccount(existingAccount);
 
-        // Verify the results
-        // Confirm AccountRepository.delete(...).
-        final Account entity = new Account();
-        entity.setAccountId("accountId");
-        entity.setName("name");
-        entity.setEmail("email");
-        entity.setAge(0);
-        entity.setStatus(AccountStatus.IN_ACTIVE);
-        entity.setSecurityPIN("securityPIN");
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account entity = mockAccount();
+        final Address address1 = mockAddress();
+        address1.setCreatedAt(CREATED_DATE);
+        address1.setUpdatedAt(UPDATED_DATE);
         entity.setAddresses(List.of(address1));
-        entity.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        entity.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        entity.setCreatedAt(CREATED_DATE);
+        entity.setUpdatedAt(UPDATED_DATE);
         verify(mockAccountRepository).delete(entity);
     }
 
     @Test
     void testGetAccountByAccountId() {
-        // Setup
-        final Account expectedResult = new Account();
-        expectedResult.setAccountId("accountId");
-        expectedResult.setName("name");
-        expectedResult.setEmail("email");
-        expectedResult.setAge(0);
-        expectedResult.setStatus(AccountStatus.IN_ACTIVE);
-        expectedResult.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
         expectedResult.setAddresses(List.of(address));
-        expectedResult.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        expectedResult.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
 
-        // Configure AccountRepository.findByAccountId(...).
-        final Account account = new Account();
-        account.setAccountId("accountId");
-        account.setName("name");
-        account.setEmail("email");
-        account.setAge(0);
-        account.setStatus(AccountStatus.IN_ACTIVE);
-        account.setSecurityPIN("securityPIN");
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account account = mockAccount();
+        final Address address1 = mockAddress();
+        address1.setCreatedAt(CREATED_DATE);
+        address1.setUpdatedAt(UPDATED_DATE);
         account.setAddresses(List.of(address1));
-        account.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        when(mockAccountRepository.findByAccountId("accountId")).thenReturn(account);
+        account.setCreatedAt(CREATED_DATE);
+        account.setUpdatedAt(UPDATED_DATE);
+        when(mockAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(account);
 
-        // Run the test
-        final Account result = accountServiceImplUnderTest.getAccountByAccountId("accountId");
+        final Account result = accountServiceImplUnderTest.getAccountByAccountId(ACCOUNT_ID);
 
-        // Verify the results
         assertThat(result).isEqualTo(expectedResult);
     }
 
