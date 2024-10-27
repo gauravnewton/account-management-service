@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void updateAccount(Account existingAccount, String name, String email, String country, String postalCode, int age, String status) {
+    public void updateAccount(Account existingAccount, String name, String email, String country, String postalCode, int age, String status, Date updatedAt) {
         if (StringUtils.isNotBlank(name)) {
             existingAccount.setName(name);
         }
@@ -91,9 +91,9 @@ public class AccountServiceImpl implements AccountService {
                 && (!existingAccount.getAddresses().get(0).getCountryCode().equals(country)
                 || !(existingAccount.getAddresses().get(0).getPostalCode()).equals(postalCode))) {
             AddressLookUpResponse response = getAddressLookUpResponse(country, postalCode);
-            populateAddressInformation(existingAccount, response);
-            accountRepository.save(existingAccount);
+            populateAddressInformation(existingAccount, response, updatedAt);
         }
+        accountRepository.save(existingAccount);
     }
 
     @Override
@@ -203,7 +203,7 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findByAccountIdAndEmail(accountId, email);
     }
 
-    private void populateAddressInformation(Account existingAccount, AddressLookUpResponse response) {
+    private void populateAddressInformation(Account existingAccount, AddressLookUpResponse response, Date updatedAt) {
         if (Objects.isNull(response)) {
             throw new AddressLookUpException("Empty response received while performing address lookup");
         }
@@ -217,9 +217,9 @@ public class AccountServiceImpl implements AccountService {
         existingAddress.get(0).setState(response.getPlaces().get(0).getState());
         existingAddress.get(0).setStateCode(response.getPlaces().get(0).getStateCode());
         existingAddress.get(0).setLatitude(response.getPlaces().get(0).getLatitude());
-        existingAddress.get(0).setUpdatedAt(new Date());
+        existingAddress.get(0).setUpdatedAt(updatedAt);
 
         existingAccount.setAddresses(existingAddress);
-        existingAccount.setUpdatedAt(new Date());
+        existingAccount.setUpdatedAt(updatedAt);
     }
 }

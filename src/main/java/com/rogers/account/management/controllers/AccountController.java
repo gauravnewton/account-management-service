@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -101,7 +102,7 @@ public class AccountController {
         if (existingAccount.getEmail().equals(email)) {
             throw new EmailAlreadyInUseException("Email id " + email + " is already bounded to other account");
         }
-        accountService.updateAccount(existingAccount, name, email, country, postalCode, age, status);
+        accountService.updateAccount(existingAccount, name, email, country, postalCode, age, status, new Date());
         return new ResponseEntity<>(new GenericResponse(HttpStatus.OK, ACCOUNT_UPDATED), HttpStatus.OK);
     }
 

@@ -5,6 +5,7 @@ import com.rogers.account.management.dtos.response.AccountCountResponse;
 import com.rogers.account.management.dtos.response.CreateAccountResponse;
 import com.rogers.account.management.entities.Account;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -20,7 +21,7 @@ public interface AccountService {
 
     Account getAccountByAccountId(String accountId);
 
-    void updateAccount(Account existingAccount, String name, String email, String country, String postalCode, int age, String status);
+    void updateAccount(Account existingAccount, String name, String email, String country, String postalCode, int age, String status, Date updatedAt);
 
     Account getAccount(String accountId, String email);
 

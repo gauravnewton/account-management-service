@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import javax.print.attribute.standard.MediaSize;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,12 @@ class AccountServiceImplTest {
     public static final String LATITUDE = "40.9223";
     public static final String LONGITUDE = "-72.6371";
     public static final String BACK_SLASH = "/";
+    public static final String UPDATE_POSTAL_CODE = "60661";
+    public static final String UPDATE_STATE = "Illinois";
+    public static final String UPDATE_STATE_CODE = "IL";
+    public static final String UPDATE_LATITUDE = "41.8814";
+    public static final String UPDATE_LONGITUDE = "-87.643";
+    public static final String UPDATE_CITY = "Chicago";
 
     @Test
     void testCreateAccount() {
@@ -91,8 +98,6 @@ class AccountServiceImplTest {
 
         assertThat(result).isEqualTo(expectedResult);
     }
-
-
 
     @Test
     void testGetAccountByEmail() {
@@ -319,262 +324,182 @@ class AccountServiceImplTest {
 
     @Test
     void testUpdateAccount() {
-        // Setup
-        final Account existingAccount = new Account();
-        existingAccount.setAccountId("accountId");
-        existingAccount.setName("name");
-        existingAccount.setEmail("email");
-        existingAccount.setAge(0);
-        existingAccount.setStatus(AccountStatus.IN_ACTIVE);
-        existingAccount.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account existingAccount = mockAccount();
+        final Address address = mockAddress();
+        address.setUpdatedAt(UPDATED_DATE);
         existingAccount.setAddresses(List.of(address));
-        existingAccount.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        existingAccount.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        existingAccount.setUpdatedAt(UPDATED_DATE);
 
-        when(mockAppConfig.getAddressLookUpUrl()).thenReturn("result");
-        when(mockRestTemplateConfig.getRestTemplate()).thenReturn(new RestTemplate(List.of()));
+        accountServiceImplUnderTest.updateAccount(existingAccount, NAME, EMAIL, COUNTRY_CODE, POSTAL_CODE, AGE, STATUS_ACTIVE, UPDATED_DATE);
 
-        // Run the test
-        accountServiceImplUnderTest.updateAccount(existingAccount, "name", "email", "country", "postalCode", 0,
-                "status");
-
-        // Verify the results
-        // Confirm AccountRepository.save(...).
-        final Account entity = new Account();
-        entity.setAccountId("accountId");
-        entity.setName("name");
-        entity.setEmail("email");
-        entity.setAge(0);
-        entity.setStatus(AccountStatus.IN_ACTIVE);
-        entity.setSecurityPIN("securityPIN");
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account entity = mockAccount();
+        final Address address1 = mockAddress();
+        address1.setUpdatedAt(UPDATED_DATE);
         entity.setAddresses(List.of(address1));
-        entity.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        entity.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        entity.setUpdatedAt(UPDATED_DATE);
         verify(mockAccountRepository).save(entity);
     }
 
     @Test
-    void testGetAccount() {
-        // Setup
-        final Account expectedResult = new Account();
-        expectedResult.setAccountId("accountId");
-        expectedResult.setName("name");
-        expectedResult.setEmail("email");
-        expectedResult.setAge(0);
-        expectedResult.setStatus(AccountStatus.IN_ACTIVE);
-        expectedResult.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+    void testUpdateAccountWithExternalAddressLookUpCall() {
+        final Account existingAccount = mockAccount();
+        final Address address = mockAddress();
+        address.setUpdatedAt(UPDATED_DATE);
+        existingAccount.setAddresses(List.of(address));
+        existingAccount.setCreatedAt(CREATED_DATE);
+        existingAccount.setUpdatedAt(UPDATED_DATE);
+
+        when(mockAppConfig.getAddressLookUpUrl()).thenReturn("");
+        when(restTemplate.getForObject(COUNTRY_CODE + BACK_SLASH + UPDATE_POSTAL_CODE, AddressLookUpResponse.class))
+                .thenReturn(mockUpdateAddressLookUpResponse());
+        when(mockRestTemplateConfig.getRestTemplate()).thenReturn(restTemplate);
+
+        accountServiceImplUnderTest.updateAccount(existingAccount, NAME, EMAIL, COUNTRY_CODE, UPDATE_POSTAL_CODE, AGE, STATUS_ACTIVE, UPDATED_DATE);
+
+        final Account entity = mockAccount();
+        final Address address1 = mockUpdateAddress();
+        address1.setUpdatedAt(UPDATED_DATE);
+        entity.setAddresses(List.of(address1));
+        entity.setCreatedAt(CREATED_DATE);
+        entity.setUpdatedAt(UPDATED_DATE);
+        verify(mockAccountRepository).save(entity);
+    }
+
+    @Test
+    void testGetAccountWhenEmailIdProvided() {
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
         expectedResult.setAddresses(List.of(address));
-        expectedResult.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        expectedResult.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
 
-        // Configure AccountRepository.findByAccountId(...).
-        final Account account = new Account();
-        account.setAccountId("accountId");
-        account.setName("name");
-        account.setEmail("email");
-        account.setAge(0);
-        account.setStatus(AccountStatus.IN_ACTIVE);
-        account.setSecurityPIN("securityPIN");
-        final Address address1 = new Address();
-        address1.setCountry("country");
-        address1.setCountryCode("countryCode");
-        address1.setPostalCode("postalCode");
-        address1.setState("state");
-        address1.setStateCode("stateCode");
-        address1.setCity("city");
-        address1.setLatitude("latitude");
-        address1.setLongitude("longitude");
-        address1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setAddresses(List.of(address1));
-        account.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        when(mockAccountRepository.findByAccountId("accountId")).thenReturn(account);
-
-        // Configure AccountRepository.findByEmail(...).
-        final Account account1 = new Account();
-        account1.setAccountId("accountId");
-        account1.setName("name");
-        account1.setEmail("email");
-        account1.setAge(0);
-        account1.setStatus(AccountStatus.IN_ACTIVE);
-        account1.setSecurityPIN("securityPIN");
-        final Address address2 = new Address();
-        address2.setCountry("country");
-        address2.setCountryCode("countryCode");
-        address2.setPostalCode("postalCode");
-        address2.setState("state");
-        address2.setStateCode("stateCode");
-        address2.setCity("city");
-        address2.setLatitude("latitude");
-        address2.setLongitude("longitude");
-        address2.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address2.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account account1 = mockAccount();
+        final Address address2 = mockAddress();
+        address2.setCreatedAt(CREATED_DATE);
+        address2.setUpdatedAt(UPDATED_DATE);
         account1.setAddresses(List.of(address2));
-        account1.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account1.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        when(mockAccountRepository.findByEmail("email")).thenReturn(account1);
+        account1.setCreatedAt(CREATED_DATE);
+        account1.setUpdatedAt(UPDATED_DATE);
+        when(mockAccountRepository.findByEmail(EMAIL)).thenReturn(account1);
 
-        // Configure AccountRepository.findByAccountIdAndEmail(...).
-        final Account account2 = new Account();
-        account2.setAccountId("accountId");
-        account2.setName("name");
-        account2.setEmail("email");
-        account2.setAge(0);
-        account2.setStatus(AccountStatus.IN_ACTIVE);
-        account2.setSecurityPIN("securityPIN");
-        final Address address3 = new Address();
-        address3.setCountry("country");
-        address3.setCountryCode("countryCode");
-        address3.setPostalCode("postalCode");
-        address3.setState("state");
-        address3.setStateCode("stateCode");
-        address3.setCity("city");
-        address3.setLatitude("latitude");
-        address3.setLongitude("longitude");
-        address3.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address3.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account result = accountServiceImplUnderTest.getAccount("", EMAIL);
+
+        assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void testGetAccountWhenOnlyAccountIdProvided() {
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
+        expectedResult.setAddresses(List.of(address));
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
+
+        final Account account = mockAccount();
+        final Address address1 = mockAddress();
+        address1.setCreatedAt(CREATED_DATE);
+        address1.setUpdatedAt(UPDATED_DATE);
+        account.setAddresses(List.of(address1));
+        account.setCreatedAt(CREATED_DATE);
+        account.setUpdatedAt(UPDATED_DATE);
+        when(mockAccountRepository.findByAccountId(ACCOUNT_ID)).thenReturn(account);
+
+        final Account result = accountServiceImplUnderTest.getAccount(ACCOUNT_ID, "");
+
+        assertThat(result).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void testGetAccountWhenBothAccountIdAndEmailIdProvided() {
+        final Account expectedResult = mockAccount();
+        final Address address = mockAddress();
+        address.setCreatedAt(CREATED_DATE);
+        address.setUpdatedAt(UPDATED_DATE);
+        expectedResult.setAddresses(List.of(address));
+        expectedResult.setCreatedAt(CREATED_DATE);
+        expectedResult.setUpdatedAt(UPDATED_DATE);
+
+        final Account account2 = mockAccount();
+        final Address address3 = mockAddress();
+        address3.setCreatedAt(CREATED_DATE);
+        address3.setUpdatedAt(UPDATED_DATE);
         account2.setAddresses(List.of(address3));
-        account2.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account2.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        when(mockAccountRepository.findByAccountIdAndEmail("accountId", "email")).thenReturn(account2);
+        account2.setCreatedAt(CREATED_DATE);
+        account2.setUpdatedAt(UPDATED_DATE);
+        when(mockAccountRepository.findByAccountIdAndEmail(ACCOUNT_ID, EMAIL)).thenReturn(account2);
 
-        // Run the test
-        final Account result = accountServiceImplUnderTest.getAccount("accountId", "email");
+        final Account result = accountServiceImplUnderTest.getAccount(ACCOUNT_ID, EMAIL);
 
-        // Verify the results
         assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
     void testGetAccountCount() {
-        // Setup
         final AccountCountResponse accountCountResponse = new AccountCountResponse();
-        accountCountResponse.setCountry("key");
-        accountCountResponse.setCount(0);
+        accountCountResponse.setCountry(COUNTRY_CODE);
+        accountCountResponse.setCount(1);
         final State state = new State();
-        state.setState("state");
-        state.setCount(0);
+        state.setState(STATE_CODE);
+        state.setCount(1);
         final Place place = new Place();
-        place.setPlace("place");
-        place.setCount(0);
+        place.setPlace(CITY);
+        place.setCount(1);
         state.setPlaces(List.of(place));
         accountCountResponse.setStates(List.of(state));
         final List<AccountCountResponse> expectedResult = List.of(accountCountResponse);
 
-        // Configure AccountRepository.findAll(...).
-        final Account account = new Account();
-        account.setAccountId("accountId");
-        account.setName("name");
-        account.setEmail("email");
-        account.setAge(0);
-        account.setStatus(AccountStatus.IN_ACTIVE);
-        account.setSecurityPIN("securityPIN");
-        final Address address = new Address();
-        address.setCountry("country");
-        address.setCountryCode("countryCode");
-        address.setPostalCode("postalCode");
-        address.setState("state");
-        address.setStateCode("stateCode");
-        address.setCity("city");
-        address.setLatitude("latitude");
-        address.setLongitude("longitude");
-        address.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        address.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        final Account account = mockAccount();
+        final Address address = mockAddress();
+        address.setUpdatedAt(UPDATED_DATE);
         account.setAddresses(List.of(address));
-        account.setCreatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        account.setUpdatedAt(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
+        account.setCreatedAt(CREATED_DATE);
+        account.setUpdatedAt(UPDATED_DATE);
         final List<Account> accounts = List.of(account);
         when(mockAccountRepository.findAll()).thenReturn(accounts);
 
-        // Run the test
         final List<AccountCountResponse> result = accountServiceImplUnderTest.getAccountCount();
 
-        // Verify the results
         assertThat(result).isEqualTo(expectedResult);
     }
 
     @Test
     void testGetAccountCount_AccountRepositoryReturnsNoItems() {
-        // Setup
         when(mockAccountRepository.findAll()).thenReturn(Collections.emptyList());
 
-        // Run the test
         assertThatThrownBy(() -> accountServiceImplUnderTest.getAccountCount())
                 .isInstanceOf(AccountNotFoundException.class);
     }
 
     @Test
     void testGetAddressLookUpResponse() {
-        // Setup
-        final AddressLookUpResponse expectedResult = new AddressLookUpResponse();
-        expectedResult.setPostalCode("postalCode");
-        expectedResult.setCountry("country");
-        expectedResult.setCountryCode("countryCode");
-        final PlaceLookUpResponse placeLookUpResponse = new PlaceLookUpResponse();
-        placeLookUpResponse.setPlaceName("city");
-        placeLookUpResponse.setLongitude("longitude");
-        placeLookUpResponse.setState("state");
-        placeLookUpResponse.setStateCode("stateCode");
-        placeLookUpResponse.setLatitude("latitude");
-        expectedResult.setPlaces(List.of(placeLookUpResponse));
+        final AddressLookUpResponse expectedResult = mockAddressLookUpResponse();
 
-        when(mockAppConfig.getAddressLookUpUrl()).thenReturn("result");
-        when(mockRestTemplateConfig.getRestTemplate()).thenReturn(new RestTemplate(List.of()));
+        when(mockAppConfig.getAddressLookUpUrl()).thenReturn("");
+        when(restTemplate.getForObject(COUNTRY_CODE + BACK_SLASH + POSTAL_CODE, AddressLookUpResponse.class))
+                .thenReturn(mockAddressLookUpResponse());
+        when(mockRestTemplateConfig.getRestTemplate()).thenReturn(restTemplate);
 
-        // Run the test
-        final AddressLookUpResponse result = accountServiceImplUnderTest.getAddressLookUpResponse("countryCode",
-                "postalCode");
+        final AddressLookUpResponse result = accountServiceImplUnderTest.getAddressLookUpResponse(COUNTRY_CODE, POSTAL_CODE);
 
-        // Verify the results
         assertThat(result).isEqualTo(expectedResult);
     }
 
     private AddressLookUpResponse mockAddressLookUpResponse() {
         AddressLookUpResponse addressLookUpResponse = new AddressLookUpResponse();
-        addressLookUpResponse.setPostalCode("00501");
-        addressLookUpResponse.setCountryCode("US");
-        addressLookUpResponse.setCountry("United States");
+        addressLookUpResponse.setPostalCode(POSTAL_CODE);
+        addressLookUpResponse.setCountryCode(COUNTRY_CODE);
+        addressLookUpResponse.setCountry(COUNTRY);
 
         PlaceLookUpResponse placeLookUpResponse = new PlaceLookUpResponse();
-        placeLookUpResponse.setPlaceName("Holtsville");
-        placeLookUpResponse.setLongitude("-72.6371");
-        placeLookUpResponse.setState("New York");
-        placeLookUpResponse.setStateCode("NY");
-        placeLookUpResponse.setLatitude("40.9223");
+        placeLookUpResponse.setPlaceName(CITY);
+        placeLookUpResponse.setLongitude(LONGITUDE);
+        placeLookUpResponse.setState(STATE);
+        placeLookUpResponse.setStateCode(STATE_CODE);
+        placeLookUpResponse.setLatitude(LATITUDE);
 
         addressLookUpResponse.setPlaces(List.of(placeLookUpResponse));
         return addressLookUpResponse;
@@ -590,6 +515,20 @@ class AccountServiceImplTest {
         address.setCity(CITY);
         address.setLatitude(LATITUDE);
         address.setLongitude(LONGITUDE);
+        address.setCreatedAt(CREATED_DATE);
+        return address;
+    }
+
+    private Address mockUpdateAddress() {
+        Address address = new Address();
+        address.setCountry(COUNTRY);
+        address.setCountryCode(COUNTRY_CODE);
+        address.setPostalCode(UPDATE_POSTAL_CODE);
+        address.setState(UPDATE_STATE);
+        address.setStateCode(UPDATE_STATE_CODE);
+        address.setCity(UPDATE_CITY);
+        address.setLatitude(UPDATE_LATITUDE);
+        address.setLongitude(UPDATE_LONGITUDE);
         address.setCreatedAt(CREATED_DATE);
         return address;
     }
@@ -614,5 +553,22 @@ class AccountServiceImplTest {
         createAccountRequest.setAge(AGE);
         createAccountRequest.setStatus(STATUS_ACTIVE);
         return createAccountRequest;
+    }
+
+    private AddressLookUpResponse mockUpdateAddressLookUpResponse() {
+        AddressLookUpResponse addressLookUpResponse = new AddressLookUpResponse();
+        addressLookUpResponse.setPostalCode(UPDATE_POSTAL_CODE);
+        addressLookUpResponse.setCountryCode(COUNTRY_CODE);
+        addressLookUpResponse.setCountry(COUNTRY);
+
+        PlaceLookUpResponse placeLookUpResponse = new PlaceLookUpResponse();
+        placeLookUpResponse.setPlaceName(UPDATE_CITY);
+        placeLookUpResponse.setLongitude(UPDATE_LONGITUDE);
+        placeLookUpResponse.setState(UPDATE_STATE);
+        placeLookUpResponse.setStateCode(UPDATE_STATE_CODE);
+        placeLookUpResponse.setLatitude(UPDATE_LATITUDE);
+
+        addressLookUpResponse.setPlaces(List.of(placeLookUpResponse));
+        return addressLookUpResponse;
     }
 }
