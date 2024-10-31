@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.configs;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -10,11 +15,20 @@ import java.util.Set;
 
 import static com.rogers.account.management.commons.AppConstant.*;
 
+/**
+ * The type Unique id generator.
+ */
 @Configuration
 public class UniqueIdGenerator implements IdentifierGenerator {
     private Set<String> generatedValues = new HashSet<>();
     private Random random = new Random();
 
+    /**
+     * Generate unique value id string.
+     *
+     * @param length the length
+     * @return the string
+     */
     public String generateUniqueValueId(int length) {
         String value;
         do {

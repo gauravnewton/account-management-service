@@ -24,3 +24,8 @@ springdoc:
 address:
   lookup:
     baseurl: https://api.zippopotam.us/
+
+developer:
+  name: Gaurav Kumar
+  email: gaurav.mute@gmail.com
+  webUrl: https://github.com/gauravnewton

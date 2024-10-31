@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.services.impl;
 
 import com.rogers.account.management.configs.AppConfig;
@@ -32,6 +37,9 @@ import java.util.stream.Collectors;
 import static com.rogers.account.management.commons.AppConstant.*;
 import static java.util.stream.Collectors.groupingBy;
 
+/**
+ * The type Account service.
+ */
 @Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -123,6 +131,13 @@ public class AccountServiceImpl implements AccountService {
         return collect;
     }
 
+    /**
+     * Gets address look up response.
+     *
+     * @param countryCode the country code
+     * @param postalCode  the postal code
+     * @return the address look up response
+     */
     public AddressLookUpResponse getAddressLookUpResponse(String countryCode, String postalCode) {
         AddressLookUpResponse response;
         try {

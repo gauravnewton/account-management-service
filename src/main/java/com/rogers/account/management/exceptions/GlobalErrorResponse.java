@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.exceptions;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +13,9 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
+/**
+ * The type Global error response.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

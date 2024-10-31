@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.dtos.validation.annotations;
 
 import com.rogers.account.management.dtos.validation.AccountStatusCreationValidator;
@@ -12,16 +17,39 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * The interface Valid account creation status.
+ */
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
 @Retention(RUNTIME)
 @Documented
 @Constraint(validatedBy = AccountStatusCreationValidator.class)
 public @interface ValidAccountCreationStatus {
+    /**
+     * Groups class [ ].
+     *
+     * @return the class [ ]
+     */
     Class<?>[] groups() default {};
 
+    /**
+     * Payload class [ ].
+     *
+     * @return the class [ ]
+     */
     Class<? extends Payload>[] payload() default {};
 
+    /**
+     * Enum class class.
+     *
+     * @return the class
+     */
     Class<AccountStatus> enumClass();
 
+    /**
+     * Message string.
+     *
+     * @return the string
+     */
     String message();
 }

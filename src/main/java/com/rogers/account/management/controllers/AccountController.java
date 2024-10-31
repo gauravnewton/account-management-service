@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.controllers;
 
 import com.rogers.account.management.dtos.request.CreateAccountRequest;
 import com.rogers.account.management.dtos.response.AccountCountResponse;
 import com.rogers.account.management.dtos.response.CreateAccountResponse;
 import com.rogers.account.management.dtos.response.GenericResponse;
-import com.rogers.account.management.dtos.validation.annotations.ValidAccountCreationStatus;
 import com.rogers.account.management.dtos.validation.annotations.ValidAccountUpdateStatus;
 import com.rogers.account.management.entities.Account;
 import com.rogers.account.management.enums.AccountStatus;
@@ -18,7 +22,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +37,9 @@ import java.util.Objects;
 
 import static com.rogers.account.management.commons.AppConstant.*;
 
+/**
+ * The type Account controller.
+ */
 @Validated
 @RestController
 @RequestMapping(BACK_SLASH + API + BACK_SLASH + VERSION + BACK_SLASH + ACCOUNT)
@@ -39,6 +48,12 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    /**
+     * Create account response entity.
+     *
+     * @param request the request
+     * @return the response entity
+     */
     @PostMapping
     @Operation(summary = CREATE_ACCOUNT_SUMMARY, description = CREATE_ACCOUNT_DESCRIPTION, tags = {ACCOUNT_OPERATION})
     @ApiResponses(value = {
@@ -54,6 +69,18 @@ public class AccountController {
         return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
     }
 
+    /**
+     * Update account response entity.
+     *
+     * @param accountId  the account id
+     * @param name       the name
+     * @param email      the email
+     * @param country    the country
+     * @param postalCode the postal code
+     * @param age        the age
+     * @param status     the status
+     * @return the response entity
+     */
     @PutMapping(BACK_SLASH + "{" + ACCOUNT_ID + "}")
     @Operation(summary = UPDATE_ACCOUNT_SUMMARY, description = UPDATE_ACCOUNT_DESCRIPTION, tags = {ACCOUNT_OPERATION})
     @ApiResponses(value = {
@@ -106,6 +133,13 @@ public class AccountController {
         return new ResponseEntity<>(new GenericResponse(HttpStatus.OK, ACCOUNT_UPDATED), HttpStatus.OK);
     }
 
+    /**
+     * Gets account.
+     *
+     * @param accountId the account id
+     * @param email     the email
+     * @return the account
+     */
     @GetMapping
     @Operation(summary = GET_ACCOUNT_SUMMARY, description = GET_ACCOUNT_DESCRIPTION, tags = {ACCOUNT_OPERATION})
     @ApiResponses(value = {
@@ -132,6 +166,11 @@ public class AccountController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
+    /**
+     * Gets account count.
+     *
+     * @return the account count
+     */
     @GetMapping(BACK_SLASH + COUNT)
     @Operation(summary = GET_ACCOUNT_COUNT_SUMMARY, description = GET_ACCOUNT_COUNT_DESCRIPTION, tags = {ACCOUNT_OPERATION})
     @ApiResponses(value = {
@@ -142,6 +181,13 @@ public class AccountController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * Delete account response entity.
+     *
+     * @param accountId   the account id
+     * @param securityPIN the security pin
+     * @return the response entity
+     */
     @DeleteMapping(BACK_SLASH + DELETE + BACK_SLASH + "{" + ACCOUNT_ID + "}" + BACK_SLASH + "{" + SECURITY_PIN + "}")
     @Operation(summary = DELETE_ACCOUNT_SUMMARY, description = DELETE_ACCOUNT_DESCRIPTION, tags = {ACCOUNT_OPERATION})
     @ApiResponses(value = {

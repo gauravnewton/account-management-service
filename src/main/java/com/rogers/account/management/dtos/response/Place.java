@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024.
+ * This is a assignment project by Gaurav Kumar for client assessment.
+ */
+
 package com.rogers.account.management.dtos.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
